@@ -24,27 +24,22 @@ function target(e) {
 
 }
 
-// перегруженный метод хз для чего 
 function startDialogAfterCheck_noDice(skillName, target, dialogID, actor, publicMessage, failedMessage) {
     startDialogAfterCheck(rollDice(20), skillName, target, dialogID, actor, publicMessage, failedMessage, false, true);
 }
 
 function startDialogAfterCheck(roll, skillName, target, dialogID, actor, publicMessage, failedMessage, retriable, global) {
 
-    // подпись 
     var id = PLAYER.name + "_" + dialogID;
     var isTried = false;
-
-    //читаем данные из нужного места. todo - добавить вериант чтения изнутри игрока 
     var data;
     if (global) {
-        data = String(EVENT.npc.world.getStoreddata().get(id));
+        data = String(EVENT.entity.world.getStoreddata().get(id));
     } else {
-        data = String(EVENT.npc.getStoreddata().get(id));
+        data = String(EVENT.entity.getStoreddata().get(id));
     }
     // EVENT.npc.say("Data="+data); 
 
-    // Если проверка бросается впервые, запрос данных вернет null 
     if (!retriable) {
         if (data != "null") {
             isTried = true;
@@ -54,17 +49,11 @@ function startDialogAfterCheck(roll, skillName, target, dialogID, actor, publicM
         }
     }
 
-
-    /* 
-    Главное условие показа диалога. 
-    Todo — сделать опциональным проверку диалога для перепоказа 
-    */
     if (!PLAYER.hasReadDialog(dialogID) && (isTried == false)) {
 
 
         var skillID;
 
-        // ищется ID фракции навыка 
         for (var key in SKILL_NAMES) {
             if (key == skillName) {
                 skillID = SKILL_NAMES[key];
@@ -72,14 +61,11 @@ function startDialogAfterCheck(roll, skillName, target, dialogID, actor, publicM
             }
         }
 
-        // подготовка переменных броска 
         var base = PLAYER.getFactionPoints(skillID);
         var final = base + roll;
         var result = "";
         var passed = false;
 
-
-        //сравнивается с порогом 
         if (final >= target) {
             //  result = "&eпроходит проверку " + SKILL_NAMES_POS[skillID] + "&r";
             passed = true;
@@ -88,22 +74,17 @@ function startDialogAfterCheck(roll, skillName, target, dialogID, actor, publicM
             //result = "&cпроваливает проверку " + SKILL_NAMES_POS[skillID] + "&r";
         }
 
-
-        
         if (global) {
-            String(EVENT.npc.world.getStoreddata().put(id, String(passed)));
+            String(EVENT.entity.world.getStoreddata().put(id, String(passed)));
         } else {
-            String(EVENT.npc.getStoreddata().put(id, String(passed)));
+            String(EVENT.entity.getStoreddata().put(id, String(passed)));
         }
 
 
         // EVENT.npc.say("&b" + PLAYER.getDisplayName() + "&r " + result + ": " + final + "(" + roll + "+" +
         //  base + ")" + " из " + target);
 
-        //пишем результат в нужное место 
-        //+ показываем публичную реплику начала диалога или провала 
-        //+ заменяем wildcard на имя игрока 
-        // todo - добавить вериант чтения изнутри игрока 
+
         if (passed) {
             var result = publicMessage.replace(/@p/gi, PLAYER.getDisplayName());
             EVENT.npc.say(result);
@@ -117,7 +98,6 @@ function startDialogAfterCheck(roll, skillName, target, dialogID, actor, publicM
 
 }
 
-// айдишники 
 var SKILL_IDS = {
     FITNESS: 10,
     PERCEPTION: 11,
@@ -130,7 +110,6 @@ var SKILL_IDS = {
     COMPOSURE: 18
 }
 
-// для поиска по названию 
 var SKILL_NAMES = {
     Тренированность: 10,
     Восприятие: 11,
@@ -143,7 +122,6 @@ var SKILL_NAMES = {
     Самообладание: 18
 }
 
-//для склонения (Проверку Тренированности)
 var SKILL_NAMES_POS = {
     10: "Тренированности",
     11: "Восприятия",
@@ -156,7 +134,6 @@ var SKILL_NAMES_POS = {
     18: "Самообладания",
 }
 
-//Бросок кубика. Без нормального распределения. 
 function rollDice(size) {
     return Math.floor(Math.random() * size) + 1;
 }
