@@ -10,47 +10,63 @@ function target(e) {
     // Настрой бросок на проверку, успех которого стартанет диалог
 
     startDialogAfterCheck(
-        rollDice(20), //Куб, например 20 = d20
-        "Восприятие", //Навык
-        1, //Сложность (порог >=)
-        150, //ID диалога (показывается возле названия)
-        "§6[Окружение]§r", // от чьего имени ведется диалог
-        "@p вдруг что-то замечает.", //сообщение другим игрокам
-        "@p проходит мимо, ничего не заметив", //сообщение если игрок провалил проверку
-        true, //можно ли попытаться еще (уйдя и вернувшись в зону триггера)
-        true //true — результат запоминается всеми идентичными NPC с диалогом в мире 
-        //false — результат запоминается только этим NPC
+        rollDice(20) /* Куб, например 20 = d20*/,
+        "Восприятие" /* Навык */,
+        1 /* Сложность (порог >=) */,
+        150 /* ID диалога (показывается возле названия) */,
+        "§6[Окружение]§r" /* от чьего имени ведется диалог */,
+        "@p вдруг что-то замечает." /* сообщение другим игрокам */,
+        "@p проходит мимо, ничего не заметив"/* сообщение если игрок провалил проверку */,
+        "переброс" /* можно ли попытаться еще */, /* 
+"переброс" — можно войти-выйти в зону триггера, чтобы перебросить кубы, покуда диалог не прочитан хотя бы раз 
+"пересмотр" — проверку и диалог можно проходить сколько угодно
+"уник" — одна проверка и одно успешное прочтение */
+        "игрок" /* Кто помнит результат */ /*
+"нпц" — результат запоминается только этим NPC
+"мир" — результат запоминается всеми идентичными NPC с диалогом в мире. Риф и Индуры — 2 разных мира
+"игрок" — результат крепится за игроком */
     );
 
 }
 
-// перегруженный метод хз для чего 
-function startDialogAfterCheck_noDice(skillName, target, dialogID, actor, publicMessage, failedMessage) {
-    startDialogAfterCheck(rollDice(20), skillName, target, dialogID, actor, publicMessage, failedMessage, false, true);
-}
 
-function startDialogAfterCheck(roll, skillName, target, dialogID, actor, publicMessage, failedMessage, retriable, global) {
+function startDialogAfterCheck(roll, skillName, target, dialogID, actor, publicMessage, failedMessage, retriable, memoryLocation) {
 
-    // подпись 
+    var LOG = true;
+    // подпись
     var id = PLAYER.name + "_" + dialogID;
     var isTried = false;
 
-    //читаем данные из нужного места. todo - добавить вериант чтения изнутри игрока 
+    //читаем данные из нужного места.  
     var data;
-    if (global) {
+    if (memoryLocation == "мир") {
         data = String(EVENT.npc.world.getStoreddata().get(id));
-    } else {
+    } else if (memoryLocation == "нпц") {
         data = String(EVENT.npc.getStoreddata().get(id));
+    } else if (memoryLocation == "игрок") {
+        data = String(PLAYER.getStoreddata().get(id))
+    } else {
+        //Кричим что обосрались, если обосрались
+        PLAYER.message("Я неверно настроен! Меня зовут \"" + EVENT.npc.name + "\" на \n"
+            + " x:" + EVENT.npc.getPos().getX()
+            + " y:" + EVENT.npc.getPos().getY()
+            + " z:" + EVENT.npc.getPos().getZ()
+            + " ошибка: " + "память")
     }
-    // EVENT.npc.say("Data="+data); 
+
+    if (LOG) { PLAYER.message("Data=" + data + " id: " + id); }
 
     // Если проверка бросается впервые, запрос данных вернет null 
-    if (!retriable) {
+    if (retriable == "уник") {
         if (data != "null") {
             isTried = true;
-            //  EVENT.npc.say("Not null"); 
-        } else {
-            //  EVENT.npc.say("Is null"); 
+            if (LOG) { EVENT.npc.sayTo(PLAYER, id + " has been once attempted.") };
+        }
+    } else if (retriable == "переброс") {
+        if (data == "true") {
+            isTried = true;
+            if (LOG) { EVENT.npc.sayTo(PLAYER, id + " Data is " + data) };
+
         }
     }
 
@@ -59,7 +75,7 @@ function startDialogAfterCheck(roll, skillName, target, dialogID, actor, publicM
     Главное условие показа диалога. 
     Todo — сделать опциональным проверку диалога для перепоказа 
     */
-    if (!PLAYER.hasReadDialog(dialogID) && (isTried == false)) {
+    if (!isTried) {
 
 
         var skillID;
@@ -75,25 +91,31 @@ function startDialogAfterCheck(roll, skillName, target, dialogID, actor, publicM
         // подготовка переменных броска 
         var base = PLAYER.getFactionPoints(skillID);
         var final = base + roll;
-        var result = "";
+        var result = "@p &e@r проверку " + SKILL_NAMES_POS[skillID] + "&r " + "(" + roll + "+" + base + ") из " + target;
         var passed = false;
 
 
         //сравнивается с порогом 
         if (final >= target) {
-            //  result = "&eпроходит проверку " + SKILL_NAMES_POS[skillID] + "&r";
+            result = result
+                .replace(/@p/gi, PLAYER.getDisplayName())
+                .replace(/@r/gi, "проходит");
             passed = true;
-
         } else {
-            //result = "&cпроваливает проверку " + SKILL_NAMES_POS[skillID] + "&r";
+            result = result
+                .replace(/@p/gi, PLAYER.getDisplayName())
+                .replace(/@r/gi, "проваливает");
         }
 
+        if (LOG) { EVENT.npc.sayTo(PLAYER, result); }
 
-        
-        if (global) {
-            String(EVENT.npc.world.getStoreddata().put(id, String(passed)));
-        } else {
-            String(EVENT.npc.getStoreddata().put(id, String(passed)));
+
+        if (memoryLocation == "мир") {
+            data = String(EVENT.npc.world.getStoreddata().put(id, String(passed)));
+        } else if (memoryLocation == "нпц") {
+            data = String(EVENT.npc.getStoreddata().put(id, String(passed)));
+        } else if (memoryLocation == "игрок") {
+            data = String(PLAYER.getStoreddata().put(id, String(passed)));
         }
 
 
