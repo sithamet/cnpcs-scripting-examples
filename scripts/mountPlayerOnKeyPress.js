@@ -1,14 +1,13 @@
 function keyPressed(e) {
 
-    var id = e.player.name + "_mount";
 
-    //e.player.message(e.key);
 
     if (e.isCtrlPressed && e.key == 35) {
 
         var entities = e.player.rayTraceEntities(2, false, true);
 
         if (entities.length > 0) {
+            var id = e.player.name + "_mount";
 
             var target = entities[0];
 
