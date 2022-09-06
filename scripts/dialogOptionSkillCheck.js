@@ -7,6 +7,9 @@ var LOGGING;
 
 
 function dialog(dialogEvent) {
+
+
+    
     DIALOGS = dialogEvent.API.getDialogs();
     NPC = dialogEvent.npc;
     PLAYER = dialogEvent.player; 
