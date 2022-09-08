@@ -3,35 +3,36 @@ var EVENT;
 var NPC;
 var DIALOG;
 var DIALOGS;
-var LOGGING; 
+var LOGGING = true;  // ДОЛЖНО быть 'false' в игре, 'true' для тестов
+
+function dialog(e) {/* 
+Заполните поля ниже. Скрипт должен быть
+— В NPC для обычного диалога по правому клику
+— В Игроке для диалога по триггеру 
+*/addSkillCheck(
+rollDice(20) /* Кубик */,
+"Тренированность" /* Навык для проверки */,
+20 /* Уровень сложности */ , 
+170 /* ID диалога, в опциях которого доступны варианты провала и успеха */, 
+172 /* ID диалога успеха */,
+171 /* ID диалога провала */,
+e /* е НЕ ТРОГАТЬ*/
+)
+
+}
 
 
-function dialog(dialogEvent) {
-
-
+function addSkillCheck(roll, skillName, target, hubID, passedID, failedID, dialogEvent) {
     
     DIALOGS = dialogEvent.API.getDialogs();
     NPC = dialogEvent.npc;
     PLAYER = dialogEvent.player; 
     EVENT = dialogEvent
     DIALOG = dialogEvent.dialog;
-    LOGGING = true;
-
-    var hubID = 170;
-    var passedID = 172;
-    var failedID = 171;
-    var skillName = "Тренированность";
-    var target = 25;
-    var roll = 20;
- 
 
     //making pass & fail dialogs unavailable 
     makeDialogUnavailable(passedID);
     makeDialogUnavailable(failedID);
-
-
-
-
 
 
     if (DIALOG.getId() == hubID) {

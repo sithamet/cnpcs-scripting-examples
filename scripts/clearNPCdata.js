@@ -1,14 +1,21 @@
-function attack(e) {
+function interact(e) {
 
-
-    e.target.say("Here's waht I have...");
-    // var dataKeys = e.target.getStoreddata.getKeys(); 
-
-    // for (var i = 0; i < dataKeys.length; i++) {
-    //     e.target.say(e.target.getStoreddata.get(dataKeys[i])); 
-    // }
-
-    e.target.getStoreddata().clear();
-    e.target.say("Stored data cleared"); 
-
-}
+    var SCOREBOARD = e.player.world.getScoreboard();
+    
+    e.player.clearData();
+    //e.player.getTempdata().clear(); 
+    e.player.getStoreddata().clear(); 
+    e.npc.world.getStoreddata().clear(); 
+    
+    var objectives = SCOREBOARD.getObjectives(); 
+    
+    for (var i = 0; i < objectives.length; i++) {
+        e.player.message("Deleting " + objectives[i] + ":" + SCOREBOARD.getPlayerScore(e.player.name, objectives[i].getName(), ""); 
+        SCOREBOARD.deletePlayerScore(e.player.name, objectives[i].getName(), ""); 
+    }
+    
+    
+    e.player.message("Данные CustomNPC сброшены");
+    
+    
+    }
