@@ -50,8 +50,8 @@ function addSkillCheck(roll, skillName, target, hubID, passedID, failedID, retri
 
         if (LOGGING) { PLAYER.message("Data is " + id + ":" + data) }
 
-        var canCheck = ((retriable == "переброс") && data != 1)
-            || (data == -1)
+        var canCheck = ((retriable == "переброс") && data != 2)
+            || (data == 0)
 
         if (canCheck) {
 
