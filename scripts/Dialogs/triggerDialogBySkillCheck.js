@@ -11,9 +11,10 @@ function target(e) {
         1 /* Сложность (порог >=) */,
         150 /* ID диалога (показывается возле названия) */,
         "§6[Окружение]§r" /* от чьего имени ведется диалог */,
-        "@p вдруг что-то замечает." /* сообщение другим игрокам */,
-        "@p проходит мимо, ничего не заметив"/* сообщение если игрок провалил проверку */,
-        "пересмотр" /* можно ли попытаться еще */, /* 
+        "@p вдруг что-то замечает." /* сообщение другим игрокам, не показывается если пусто */,
+        15, /* радиус сообщения другим игрокам*/
+        "@p проходит мимо, ничего не заметив"/* сообщение если игрок провалил проверку, не показывается если пусто */,
+        "переброс" /* можно ли попытаться еще */, /* 
 "переброс" — можно войти-выйти в зону триггера, чтобы перебросить кубы, покуда диалог не прочитан хотя бы раз 
 "пересмотр" — проверку и диалог можно проходить сколько угодно
 "уник" — одна проверка, больше недоступна */
@@ -21,13 +22,13 @@ function target(e) {
 "нпц" — результат запоминается только этим NPC
 "мир" — результат запоминается всеми идентичными NPC с диалогом в мире. Риф и Индуры — 2 разных мира
 "игрок" — результат крепится за игроком */
- e /* е НЕ УДАЛЯТЬ! */
+        e /* е НЕ УДАЛЯТЬ! */
     );
 
 }
 
 
-function startDialogAfterCheck(roll, skillName, target, dialogID, actor, publicMessage, failedMessage, retriable, memoryLocation, e) {
+function startDialogAfterCheck(roll, skillName, target, dialogID, actor, publicMessage, radius, failedMessage, retriable, memoryLocation, e) {
 
     PLAYER = e.entity;
     EVENT = e;
@@ -127,13 +128,30 @@ function startDialogAfterCheck(roll, skillName, target, dialogID, actor, publicM
         //+ заменяем wildcard на имя игрока 
         // todo - добавить вериант чтения изнутри игрока 
         if (passed) {
-            var result = publicMessage.replace(/@p/gi, PLAYER.getDisplayName());
-            EVENT.npc.say(result);
+
+
             PLAYER.showDialog(dialogID, actor);
+
+            if (publicMessage != "") {
+
+                actor = actor.replace(/@p/gi, PLAYER.getDisplayName());
+                publicMessage = publicMessage.replace(/@p/gi, PLAYER.getDisplayName());
+
+                var players = PLAYER.world.getNearbyEntities(PLAYER.getPos(), radius, 1);
+
+                for (var i = 0; i < players.length; i++) {
+                    players[i].message(actor + ": " + publicMessage);
+                }
+            }
+
+
         }
         else {
-            var result = failedMessage.replace(/@p/gi, PLAYER.getDisplayName());
-            EVENT.npc.say(result);
+
+            if (failedMessage != "") {
+                failedMessage = failedMessage.replace(/@p/gi, PLAYER.getDisplayName());
+                PLAYER.message(actor + ": " + failedMessage);
+            }
         }
     }
 

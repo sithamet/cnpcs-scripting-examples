@@ -1,3 +1,5 @@
+//TODO Устроить нормальную синхронизацию ддля "разблока"
+
 var PLAYER;
 var EVENT;
 var NPC;
@@ -21,8 +23,8 @@ function dialog(e) {/*
     172 /* ID диалога успеха */,
     171 /* ID диалога провала */,
     170,
-    "переброс", /* уник, переброс, разблок */
-    -5 /* рост сложности при провале, 0 для отключения штрафа, отрицательные для облегчения */,
+    "разблок", /* уник, переброс, разблок */
+    0 /* рост сложности при провале, 0 для отключения штрафа, отрицательные для облегчения */,
     /* Ниже — сообщение, что добавляется при провале к хабу. 
     "" чтобы не добавлять */
     "\n\n" + "От постоянных усилий, жопа уже надорвана. Сжать её будет еще сложнее.",
@@ -88,7 +90,7 @@ function addSkillCheck(roll, skillName, target, hubID, passedID, failedID, endID
 
         if (getScore(id) == 2 && successText != "" && Number(STOREDDATA.get("passed" + hubID)) != 1) {
             appendDialogText(hubID, successText);
-            STOREDDATA.put("passed" + hubID, 1);
+            STOREDDATA.put("passed" + hubID, 2);
         }
 
         if (canCheck) {
@@ -126,6 +128,7 @@ function addSkillCheck(roll, skillName, target, hubID, passedID, failedID, endID
 
                 setScore(id, 2);
                 passed = true;
+                STOREDDATA.put("passed" + hubID, 1);
 
 
                 if (retriable == "разблок") {
