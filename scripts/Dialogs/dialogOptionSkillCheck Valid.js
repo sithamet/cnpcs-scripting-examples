@@ -1,5 +1,3 @@
-//TODO Устроить нормальную синхронизацию ддля "разблока"
-
 var PLAYER;
 var EVENT;
 var DIALOG;
