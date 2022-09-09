@@ -2,41 +2,41 @@
 
 var PLAYER;
 var EVENT;
-var NPC;
 var DIALOG;
 var DIALOGS;
 var SCOREBOARD;
 var ENDID;
 var STOREDDATA;
-var LOGGING = false;  // ДОЛЖНО быть 'false' в игре, 'true' для тестов
+var LOGGING = true;  // ДОЛЖНО быть 'false' в игре, 'true' для тестов
 
 function dialog(e) {/* 
 Заполните поля ниже. Скрипт должен быть
 — В NPC для обычного диалога по правому клику
 — В Игроке для диалога по триггеру 
 - Условие доступности для повтора выставляется в самом диалоге
-*/addSkillCheck(
-    rollDice(20) /* Кубик */,
-    "Тренированность" /* Навык для проверки */,
-    20 /* Уровень сложности */,
-    170 /* ID диалога, в опциях которого доступны варианты провала и успеха */,
-    172 /* ID диалога успеха */,
-    171 /* ID диалога провала */,
-    170,
-    "разблок", /* уник, переброс, разблок */
-    0 /* рост сложности при провале, 0 для отключения штрафа, отрицательные для облегчения */,
-    /* Ниже — сообщение, что добавляется при провале к хабу. 
-    "" чтобы не добавлять */
-    "\n\n" + "От постоянных усилий, жопа уже надорвана. Сжать её будет еще сложнее.",
-    /* Ниже — сообщение, что добавляется при успехе к хабу.
-    Есть смысл лишь для диалогов, которые можно пересмотреть
-    "" чтобы не добавлять */
-    "\n\n" + "Жопа уже сжата. Больше ее можно не сжимать.",
-    //личное сообщение при попытке открыть диалог, если диалог в пользовании. 
-    // Будет показываться вместо диалога. "" в первом для отключения
-    ["&a" + "@p" + "&r", "*борется со своей жопой, пробуйте позже*"],
-    e /* е НЕ ТРОГАТЬ*/
-)
+*/
+    addSkillCheck(
+        rollDice(20) /* Кубик */,
+        "Тренированность" /* Навык для проверки */,
+        20 /* Уровень сложности */,
+        170 /* ID диалога, в опциях которого доступны варианты провала и успеха */,
+        172 /* ID диалога успеха */,
+        171 /* ID диалога провала */,
+        170,
+        "переброс", /* уник, переброс, разблок */
+        0 /* рост сложности при провале, 0 для отключения штрафа, отрицательные для облегчения */,
+        /* Ниже — сообщение, что добавляется при провале к хабу.
+        "" чтобы не добавлять */
+        "\n\n" + "От постоянных усилий, жопа уже надорвана. Сжать её будет еще сложнее.",
+        /* Ниже — сообщение, что добавляется при успехе к хабу.
+        Есть смысл лишь для диалогов, которые можно пересмотреть
+        "" чтобы не добавлять */
+        "\n\n" + "Жопа уже сжата. Больше ее можно не сжимать.",
+        //личное сообщение при попытке открыть диалог, если диалог в пользовании.
+        // Будет показываться вместо диалога. "" в первом для отключения
+        ["&a" + "@p" + "&r", "*борется со своей жопой, пробуйте позже*"],
+        e /* е НЕ ТРОГАТЬ*/
+    )
 
 }
 
@@ -47,7 +47,6 @@ function addSkillCheck(roll, skillName, target, hubID, passedID, failedID, endID
     var failScore = "fail" + hubID;
 
     DIALOGS = dialogEvent.API.getDialogs();
-    NPC = dialogEvent.npc;
     PLAYER = dialogEvent.player;
     EVENT = dialogEvent
     DIALOG = dialogEvent.dialog;
@@ -55,47 +54,75 @@ function addSkillCheck(roll, skillName, target, hubID, passedID, failedID, endID
     ENDID = endID;
     STOREDDATA = EVENT.player.world.getStoreddata();
 
-    if (DIALOG.getId() == hubID) {
+    if (DIALOG.getId() === hubID) {
 
-        if (LOGGING) { PLAYER.message("Before start, state is " + "active" + endID + STOREDDATA.get("active" + endID)) }
-
-        if (STOREDDATA.get("active" + endID) == "0" || String(STOREDDATA.get("active" + endID)) == "null") {
-
-            STOREDDATA.put("active" + endID, PLAYER.getDisplayName());
-
-        } else if (broadCasts[0] != "") {
-
-            var name = broadCasts[0].replace(/@p/gi, STOREDDATA.get("active" + endID));
-            var text = broadCasts[1].replace(/@p/gi, STOREDDATA.get("active" + endID));
-
-            PLAYER.message(name + ":" + text);
-
-            PLAYER.showDialog(174, STOREDDATA.get("active" + endID))
+        if (LOGGING) {
+            PLAYER.message("&aSTART LOGIC&rBefore start, state is " + "active" + ENDID + STOREDDATA.get("active" + endID))
         }
+
+        if (String(STOREDDATA.get("active" + ENDID)) == "0"
+            || String(STOREDDATA.get("active" + ENDID)) == "null") {
+
+            if (LOGGING) {
+                PLAYER.message("Dialog is not active")
+                PLAYER.message("active" + ENDID + "=" + STOREDDATA.get("active" + ENDID))
+            }
+
+            STOREDDATA.put("active" + ENDID, PLAYER.getDisplayName());
+
+        } else {
+
+            if (broadCasts[0] !== "") {
+
+                var name = broadCasts[0].replace(/@p/gi, STOREDDATA.get("active" + ENDID));
+                var text = broadCasts[1].replace(/@p/gi, STOREDDATA.get("active" + ENDID));
+
+                PLAYER.message(name + ": " + text);
+
+                PLAYER.showDialog(174, String(STOREDDATA.get("active" + endID)))
+            }
+        }
+
 
         //making pass & fail dialogs unavailable w/o check
 
         configureFailed(id, failedID);
         configurePassed(id, passedID);
 
-        if (LOGGING) { PLAYER.message("§aEntered processing of " + id) }
+
+        if (retriable == "разлок" && STOREDDATA.get("passed" + hubID) == "1") {
+            var option = DIALOGS.get(passedID);
+            option.getAvailability().setScoreboard(0, "", 1, 0);
+            option.save();
+        }
+
+
+        if (LOGGING) {
+            PLAYER.message("§aEntered processing of " + id)
+        }
 
         var data = getScore(id);
 
-        if (LOGGING) { PLAYER.message("Data is " + id + ":" + data) }
+        if (LOGGING) {
+            PLAYER.message("Data is " + id + ":" + data)
+        }
 
 
-        var canCheck = ((retriable == "переброс") && data != 2)
-            || (data == 0) || (retriable == "переброс") && Number(STOREDDATA.get("passed" + hubID)) != 1
+        var canCheck =
+            ((retriable === "переброс") && data !== 2)
+            || (data === 0)
+            || (retriable === "переброс") && Number(STOREDDATA.get("passed" + hubID)) !== 1
 
-        if (getScore(id) == 2 && successText != "" && Number(STOREDDATA.get("passed" + hubID)) != 1) {
+        if (getScore(id) === 2 && successText !== "" && Number(STOREDDATA.get("passed" + hubID)) !== 1) {
             appendDialogText(hubID, successText);
             STOREDDATA.put("passed" + hubID, 2);
         }
 
         if (canCheck) {
 
-            if (LOGGING) { PLAYER.message("CanCheck...") }
+            if (LOGGING) {
+                PLAYER.message("CanCheck...")
+            }
 
 
             // подготовка переменных броска 
@@ -103,7 +130,9 @@ function addSkillCheck(roll, skillName, target, hubID, passedID, failedID, endID
             var base = getSkillValue(skillID);
             var final = base + roll;
 
-            if (LOGGING) { PLAYER.message("failScore is " + STOREDDATA.get(failScore)) }
+            if (LOGGING) {
+                PLAYER.message("failScore is " + STOREDDATA.get(failScore))
+            }
 
             var penaltyPoints = (Number(STOREDDATA.get(failScore)) * penalty);
             var finalTarget = target + penaltyPoints;
@@ -131,8 +160,8 @@ function addSkillCheck(roll, skillName, target, hubID, passedID, failedID, endID
                 STOREDDATA.put("passed" + hubID, 1);
 
 
-                if (retriable == "разблок") {
-                    var option = DIALOGS.get(passedID);
+                if (retriable === "разблок") {
+                    option = DIALOGS.get(passedID);
 
                     option.getAvailability().setScoreboard(0, "", 1, 0);
                     option.save();
@@ -147,18 +176,21 @@ function addSkillCheck(roll, skillName, target, hubID, passedID, failedID, endID
                 }
                 setScore(id, 1);
 
-                if (Number(STOREDDATA.get(failScore)) == 1 && penaltyText != "") {
+                if (Number(STOREDDATA.get(failScore)) === 1 && penaltyText !== "") {
                     appendDialogText(hubID, penaltyText);
                 }
 
                 var i = Number(STOREDDATA.get(failScore)) + 1;
-                if (LOGGING) { PLAYER.message("failscore is" + i) }
+                if (LOGGING) {
+                    PLAYER.message("failscore is" + i)
+                }
                 STOREDDATA.put(failScore, i);
 
             }
 
-            if (LOGGING) { NPC.say(result); }
-
+            if (LOGGING) {
+                PLAYER.message.say(result);
+            }
 
 
         }
@@ -213,14 +245,14 @@ function rollDice(size) {
 }
 
 /**
- * Searches Name-ID map for Skill Faction ID and applies it 
+ * Searches Name-ID map for Skill Faction ID and applies it
  * @param {String} name skill name
- * @returns Skill Faction Id 
+ * @returns Skill Faction Id
  */
 function getSkillID(name) {
     var skillID;
     for (var key in SKILL_NAMES) {
-        if (key == name) {
+        if (key === name) {
             // @ts-ignore
             skillID = SKILL_NAMES[key];
             // EVENT.npc.say(key + " is " + SKILL_NAMES[key]);
@@ -231,9 +263,9 @@ function getSkillID(name) {
 }
 
 /**
- * Gets skill valie from Skill Faction points 
+ * Gets skill valie from Skill Faction points
  * @param {Number} skillID Skill faction ID
- * @returns Skill value 
+ * @returns Skill value
  */
 function getSkillValue(skillID) {
     // @ts-ignore
@@ -305,10 +337,11 @@ function appendDialogText(hubID, penaltyText) {
 
 function dialogClose(event) {
 
-    // @ts-ignore
-    if (LOGGING) { PLAYER.message("Before removal, state is " + "active" + ENDID + STOREDDATA.get("active" + ENDID)) }
-    // @ts-ignore
-    if (event.dialog.getId() == ENDID && STOREDDATA.get("active" + ENDID) != "0") {
+    if (LOGGING) {
+        PLAYER.message("Before removal, state is " + "active" + ENDID + STOREDDATA.get("active" + ENDID))
+    }
+
+    if (event.dialog.getId() === ENDID && STOREDDATA.get("active" + ENDID) !== "0") {
         // @ts-ignore
         STOREDDATA.put("active" + ENDID, 0);
     }
