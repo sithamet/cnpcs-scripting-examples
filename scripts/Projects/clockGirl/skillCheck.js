@@ -7,38 +7,86 @@ var ENDID;
 var STOREDDATA;
 var LOGGING = true;  // ДОЛЖНО быть 'false' в игре, 'true' для тестов
 
-function dialog(e) {/* 
+function dialog(e) {/*
 Заполните поля ниже. Скрипт должен быть
 — В NPC для обычного диалога по правому клику
-— В Игроке для диалога по триггеру 
+— В Игроке для диалога по триггеру
 - Условие доступности для повтора выставляется в самом диалоге
 */
     addSkillCheck(
         rollDice(20) /* Кубик */,
-        "Тренированность" /* Навык для проверки */,
-        20 /* Уровень сложности */,
-        170 /* ID диалога, в опциях которого доступны варианты провала и успеха */,
-        172 /* ID диалога успеха */,
-        171 /* ID диалога провала */,
-        170,
-        "переброс", /* уник, переброс, разблок */
+        "Магия" /* Навык для проверки */,
+        12 /* Уровень сложности */,
+        245 /* ID диалога, в опциях которого доступны варианты провала и успеха */,
+        246 /* ID диалога успеха */,
+        247 /* ID диалога провала */,
+        245,
+        "уник", /* уник, переброс, разблок */
         0 /* рост сложности при провале, 0 для отключения штрафа, отрицательные для облегчения */,
         /* Ниже — сообщение, что добавляется при провале к хабу.
         "" чтобы не добавлять */
-        "\n\n" + "От постоянных усилий, жопа уже надорвана. Сжать её будет еще сложнее.",
+        "",
         /* Ниже — сообщение, что добавляется при успехе к хабу.
         Есть смысл лишь для диалогов, которые можно пересмотреть
         "" чтобы не добавлять */
-        "\n\n" + "Жопа уже сжата. Больше ее можно не сжимать.",
+        "",
         //личное сообщение при попытке открыть диалог, если диалог в пользовании.
         // Будет показываться вместо диалога. "" в первом для отключения
-        ["&a" + "@p" + "&r", "*борется со своей жопой, пробуйте позже*"],
+        ["", ""],
         e /* е НЕ ТРОГАТЬ*/
     )
 
+    addSkillCheck(
+        rollDice(20) /* Кубик */,
+        "Изобретательность" /* Навык для проверки */,
+        12 /* Уровень сложности */,
+        248 /* ID диалога, в опциях которого доступны варианты провала и успеха */,
+        249 /* ID диалога успеха */,
+        251 /* ID диалога провала */,
+        248,
+        "уник", /* уник, переброс, разблок */
+        0 /* рост сложности при провале, 0 для отключения штрафа, отрицательные для облегчения */,
+        /* Ниже — сообщение, что добавляется при провале к хабу.
+        "" чтобы не добавлять */
+        "",
+        /* Ниже — сообщение, что добавляется при успехе к хабу.
+        Есть смысл лишь для диалогов, которые можно пересмотреть
+        "" чтобы не добавлять */
+        "",
+        //личное сообщение при попытке открыть диалог, если диалог в пользовании.
+        // Будет показываться вместо диалога. "" в первом для отключения
+        ["", ""],
+        e /* е НЕ ТРОГАТЬ*/
+    )
+
+    addSkillCheck(
+        rollDice(20) /* Кубик */,
+        "Изобретательность" /* Навык для проверки */,
+        12 /* Уровень сложности */,
+        249 /* ID диалога, в опциях которого доступны варианты провала и успеха */,
+        252 /* ID диалога успеха */,
+        253 /* ID диалога провала */,
+        249,
+        "уник", /* уник, переброс, разблок */
+        0 /* рост сложности при провале, 0 для отключения штрафа, отрицательные для облегчения */,
+        /* Ниже — сообщение, что добавляется при провале к хабу.
+        "" чтобы не добавлять */
+        "",
+        /* Ниже — сообщение, что добавляется при успехе к хабу.
+        Есть смысл лишь для диалогов, которые можно пересмотреть
+        "" чтобы не добавлять */
+        "",
+        //личное сообщение при попытке открыть диалог, если диалог в пользовании.
+        // Будет показываться вместо диалога. "" в первом для отключения
+        ["", ""],
+        e /* е НЕ ТРОГАТЬ*/
+    )
+
+
+
 }
 
-// @ts-ignore
+
 function addSkillCheck(roll, skillName, target, hubID, passedID, failedID, endID, retriable, penalty, penaltyText, successText, broadCasts, dialogEvent) {
 
     var id = "check" + hubID;
@@ -111,7 +159,7 @@ function addSkillCheck(roll, skillName, target, hubID, passedID, failedID, endID
             || (data === 0)
             || (retriable === "переброс") && Number(STOREDDATA.get("passed" + hubID)) !== 1
 
-        if (getScore(id) === 2 && successText !== "" && Number(STOREDDATA.get("passed" + hubID)) !== 1) {
+        if (getScore(id) === 2 && successText !== "" && Number(STOREDDATA.get("passed" + hubID)) !== 2) {
             appendDialogText(hubID, successText);
             STOREDDATA.put("passed" + hubID, 2);
         }
@@ -123,7 +171,7 @@ function addSkillCheck(roll, skillName, target, hubID, passedID, failedID, endID
             }
 
 
-            // подготовка переменных броска 
+            // подготовка переменных броска
             var skillID = getSkillID(skillName)
             var base = getSkillValue(skillID);
             var final = base + roll;
@@ -144,8 +192,8 @@ function addSkillCheck(roll, skillName, target, hubID, passedID, failedID, endID
             var passed = false;
 
 
-            //сравнивается с порогом 
-            if (final >= finalTarget) {
+            //сравнивается с порогом
+            if (final >= finalTarget || roll == 20) {
 
                 if (LOGGING) {
                     result = result
@@ -154,6 +202,8 @@ function addSkillCheck(roll, skillName, target, hubID, passedID, failedID, endID
                 }
 
                 setScore(id, 2);
+                if (LOGGING) {PLAYER.message("In dialog " + DIALOG.getId() + " check has been passed. Result: score is "
+                    +  id + "=" + getScore(id) + ". Dialog " + passedID + " is now available?" + DIALOGS.get(passedID).getAvailability().isAvailable(PLAYER))}
                 passed = true;
                 STOREDDATA.put("passed" + hubID, 1);
 
@@ -187,7 +237,7 @@ function addSkillCheck(roll, skillName, target, hubID, passedID, failedID, endID
             }
 
             if (LOGGING) {
-                PLAYER.message.say(result);
+                PLAYER.message(result);
             }
 
 
@@ -197,7 +247,7 @@ function addSkillCheck(roll, skillName, target, hubID, passedID, failedID, endID
 }
 
 
-// айдишники 
+// айдишники
 var SKILL_IDS = {
     FITNESS: 10,
     PERCEPTION: 11,
@@ -210,7 +260,7 @@ var SKILL_IDS = {
     COMPOSURE: 18
 }
 
-// для поиска по названию 
+// для поиска по названию
 var SKILL_NAMES = {
     Тренированность: 10,
     Восприятие: 11,
@@ -236,7 +286,7 @@ var SKILL_NAMES_POS = {
     18: "Самообладания",
 }
 
-//Бросок кубика. Без нормального распределения. 
+//Бросок кубика. Без нормального распределения.
 // @ts-ignore
 function rollDice(size) {
     return Math.floor(Math.random() * size) + 1;
@@ -266,14 +316,12 @@ function getSkillID(name) {
  * @returns Skill value
  */
 function getSkillValue(skillID) {
-    // @ts-ignore
+    // @ts-
     return PLAYER.getFactionPoints(skillID);
 }
 
 
-// @ts-ignore
 function configureFailed(objectiveID, optionID) {
-    // @ts-ignore
     var option = DIALOGS.get(optionID);
 
     option.getAvailability().setScoreboard(0, objectiveID, 1, 1);
@@ -281,9 +329,7 @@ function configureFailed(objectiveID, optionID) {
 }
 
 
-// @ts-ignore
 function configurePassed(objectiveID, optionID) {
-    // @ts-ignore
     var option = DIALOGS.get(optionID);
 
     option.getAvailability().setScoreboard(0, objectiveID, 1, 2);
