@@ -20,6 +20,7 @@ function target(e) {
         40, //радиус в блоках
         e //не трогать
         )
+        
 
     sayOnTrigger(
         "dinner_an",
