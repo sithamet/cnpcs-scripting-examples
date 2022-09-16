@@ -1,8 +1,4 @@
-/*
-Sends a message to the chat to all players in a certain radius if dialog is open by the player
-If dialog is not in NPC and triggered by showDialog(), this script must be placed in Player instance
-(Script's Showel click on air)
- */
+
 function dialog(e) {
 
     sayOnDialog(143,
