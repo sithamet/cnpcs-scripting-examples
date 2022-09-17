@@ -6,16 +6,11 @@ If dialog is not in NPC and triggered by showDialog(), this script must be place
 function dialog(e) {
 
     sayOnDialog(143,
-        "&a" + "@p" + "&r",
-        "*@p говорит «Нет» — и в тот же момент, молот Судьи падает на череп. Он раскалывается на мелкий прах — но когда молот поднимается, череп собирается из пыли обратно, как в замедленной перемотке.*",
-        20,
+        "&a" + "@p" + "&r", //от чьего имени пишется реплика
+        //реплика
+        "*@p говорит «Нет» — и в тот же момент, молот Судьи падает на череп.*",
+        20, //радиус слышимости
         e);
-    sayOnDialog(143,
-        "&a" + "@p" + "&r",
-        "*И в тот же момент, исчезает @p — на месте остается лишь прах*",
-        20,
-        e);
-
 }
 
 function sayOnDialog(id, actorName, message, radius, event) {
@@ -26,10 +21,10 @@ function sayOnDialog(id, actorName, message, radius, event) {
     var DIALOG = event.dialog;
     var RADIUS = radius;
     var ACTOR = actorName;
-    var STOREDDATA = event.player.world.getStoreddata();
 
     if (DIALOG.getId() == TRIGGER_ID) {
 
+        //todo Replace @p while string has this token
         ACTOR = ACTOR.replace(/@p/gi, PLAYER.getDisplayName());
         MESSAGE = MESSAGE.replace(/@p/gi, PLAYER.getDisplayName());
 
