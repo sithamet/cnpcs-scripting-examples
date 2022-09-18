@@ -28,16 +28,18 @@ function dialog(event) {
 
         if (LOG) {event.player.message("data is " + "active"+BLOCKEDIDS[i] +" = " + data)}
 
+        //not empty -- it's active
         if (data !== "0" && data !== "null") {
 
+            //But the player is not a current player
             if (data !== event.player.getDisplayName()) {
                 event.player.showDialog(BUSYID, String(data))
 
+                //show a comment if enabled
                 if (COMMENT) {
                     event.player.message(buildMessage(ACTOR, MESSAGE, event.player.getDisplayName(), data));
                 }
-
-
+                //stopping the search to save computing capacities
                 return;
             }
         }
@@ -45,7 +47,7 @@ function dialog(event) {
     }
 
 
-
+    //Nashorn does not support Array.includes(), so I implemented it myself
     var includes;
 
     for (var i = 0; i < BLOCKEDIDS.length; i++) {
@@ -55,6 +57,7 @@ function dialog(event) {
     }
 
     if (includes) {
+        //adding current player's name to the memeory as an active dialog
         STOREDDATA.put("active" + DIALOG_ID, event.player.getDisplayName());
         if (LOG) {event.player.message("&eput&r active" + DIALOG_ID + "=" + STOREDDATA.get("active" + DIALOG_ID))}
     }
