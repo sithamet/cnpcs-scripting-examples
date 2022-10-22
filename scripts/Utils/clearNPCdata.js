@@ -5,8 +5,7 @@ function interact(e) {
     e.player.clearData();
     //e.player.getTempdata().clear(); 
     e.player.getStoreddata().clear(); 
-    e.npc.world.getStoreddata().clear(); 
-    
+
     var objectives = SCOREBOARD.getObjectives(); 
     
     for (var i = 0; i < objectives.length; i++) {
@@ -16,6 +15,5 @@ function interact(e) {
     
     
     e.player.message("Данные CustomNPC сброшены");
-    
     
     }

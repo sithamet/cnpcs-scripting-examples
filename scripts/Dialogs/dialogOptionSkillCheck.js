@@ -14,24 +14,24 @@ function dialog(e) {/*
     addSkillCheck(
         rollDice(20) /* Кубик */,
         "Техника" /* Навык для проверки */,
-        15 /* Уровень сложности */,
-        207 /* ID диалога, в опциях которого доступны варианты провала и успеха */,
-        219 /* ID диалога успеха */,
-        220 /* ID диалога провала */,
+        20 /* Уровень сложности */,
+        411 /* ID диалога, в опциях которого доступны варианты провала и успеха */,
+        412 /* ID диалога успеха */,
+        413 /* ID диалога провала */,
         "уник",
         /* уник — один бросок, результат сохраняется для игрока навсегда.
         переброс - можно пытаться перебросить вплоть до успеха. если хаб доступен
         разблок - если хоть один игрок прошел проверку, опция успеха доступна для всех*/
         0 /* рост сложности при провале, 0 для отключения штрафа, отрицательные для облегчения */,
-        /* Ниже — сообщение, что добавляется при провале к хабу.
+        /* Ниже — сообщение, что добавляется при провале к выбранному айли.
         "" чтобы не добавлять */
-        "",
-        /* Ниже — сообщение, что добавляется при успехе к хабу.
+        [408, "\n\n Терминал уже включен. На экране висит экран запроса пароля."],
+        /* Ниже — сообщение, что добавляется при успехе к выбранному айли.
         Есть смысл лишь для диалогов, которые можно пересмотреть
         "" чтобы не добавлять */
-        "\n\n" + "Видно, что в консоли уже кто-то покопошился: порты снизу раскрыты и с царапинами.",
+        [408, "\n\n Кто-то уже повозился с паролем. Поэтому, на экране светится, что пользователь терминала это Вех Безызвестный  — Доктор 3."],
         e /* е НЕ ТРОГАТЬ*/
-    )
+        )
 
 }
 
@@ -46,7 +46,7 @@ function addSkillCheck(roll, skillName, target, hubID, passedID, failedID, retri
     EVENT = dialogEvent
     DIALOG = dialogEvent.dialog;
     SCOREBOARD = PLAYER.world.getScoreboard();
-    STOREDDATA = EVENT.player.world.getStoreddata();
+    STOREDDATA = EVENT.npc.getStoreddata();
 
     if (DIALOG.getId() === hubID) {
 
@@ -95,12 +95,6 @@ function addSkillCheck(roll, skillName, target, hubID, passedID, failedID, retri
             //global check is not yet passed
 
 
-        //appending the dialog with success text if it was failed
-        if (getScore(id) == 2 && successText !== "" && passedData > 0) {
-            appendDialogText(hubID, successText);
-            STOREDDATA.put("passed" + hubID, 2);
-        }
-
         if (canCheck) {
 
             if (LOGGING) {PLAYER.message("&eCanCheck = true")}
@@ -145,6 +139,14 @@ function addSkillCheck(roll, skillName, target, hubID, passedID, failedID, retri
                     option.save();
                 }
 
+                var passedData = Number(STOREDDATA.get("passed" + hubID));
+
+                //appending the dialog with success text if it was failed
+                if (getScore(id) == 2 && successText[1] !== "" && passedData > 0) {
+                    appendDialogText(successText[0], successText[1]);
+                    STOREDDATA.put("passed" + hubID, 2);
+                }
+
             } else { //not passed
 
                 if (LOGGING) {
@@ -155,15 +157,17 @@ function addSkillCheck(roll, skillName, target, hubID, passedID, failedID, retri
 
                 setScore(id, 1);
 
-                //if that's the fist fail, appending penalty text to the hub dialog
-                if (Number(STOREDDATA.get(failCountID)) == 1 && penaltyText !== "") {
-                    appendDialogText(hubID, penaltyText);
-                }
+
 
                 //saving new fail count
                 var i = Number(STOREDDATA.get(failCountID)) + 1;
                 if (LOGGING) {PLAYER.message("fail count is" + i)}
                 STOREDDATA.put(failCountID, i);
+
+                //if that's the fist fail, appending penalty text to the hub dialog
+                if (Number(STOREDDATA.get(failCountID)) == 1 && penaltyText[0] !== "") {
+                    appendDialogText(penaltyText[0], penaltyText[1]);
+                }
 
             }
 
