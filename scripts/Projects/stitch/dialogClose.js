@@ -1,6 +1,7 @@
 var EFFECT1_ID = 510;
 var EFFECT2_ID = 509;
 var EFFECT3_ID = 511;
+var LEVEL_1 = 503;
 
 var GM3_DURATION = 20;
 
@@ -15,6 +16,12 @@ function dialogClose(e) {
     var item = e.player.getMainhandItem();
 
     switch (closeID) {
+        case LEVEL_1:
+
+            setScore(e.player, "stitchLevel", 1)
+
+            break;
+
         case EFFECT1_ID:
             var COST = 0.4
             if (COST > item.getDurabilityValue()) {
@@ -36,7 +43,7 @@ function dialogClose(e) {
             if (level == 1) {
                 bonus = skillLevel * 20;
             } else if (level == 2) {
-                bonus = (skillLevel * 2)  * 20;
+                bonus = (skillLevel * 2) * 20;
             } else if (level == 3) {
                 bonus = (skillLevel * 3) * 20;
             } else if (level > 3) {
@@ -47,13 +54,12 @@ function dialogClose(e) {
             bonus = bonus <= 0 ? GM3_DURATION + 20 : bonus;
 
 
-
             sayToAll(e.player, 15, "&c[" + e.player.getDisplayName() + "]&r",
             "*" + e.player.getDisplayName() + " делает глоток из бутылочки — и разрывается на вихрь кровавых капель.*",
                 false)
-            sayTo(e.player, "&c[Шов]&r", "*Вы откидываетесь на волю Шва — и проваливаетесь в тонкую грань между Полотном и его изнанкой.*\n&7\\\\У вас есть от " + bonus/20 + " до " + bonus/10 + " секунд чтобы переместиться.");
+            sayTo(e.player, "&c[Шов]&r", "*Вы откидываетесь на волю Шва — и проваливаетесь в тонкую грань между Полотном и его изнанкой.*\n&7\\\\У вас есть от " + bonus / 20 + " до " + bonus / 10 + " секунд чтобы переместиться.");
 
-            stitchGM3(e.player, e.API);
+            stitchGM3(e.player, e.API, bonus);
             break;
 
         case EFFECT2_ID:
@@ -154,6 +160,7 @@ function dialogClose(e) {
             e.player.getTempdata().put("stitched", true);
             e.player.getTempdata().put("stitchSpell", "teleport_others");
             sayTo(e.player, "&c[Шов]&r", "*Вы уверены: стоит указать рукой на существо — и Изнанка перенесет его по вашей воле.*\n&7\\\\Используйте левый клик в радиусе " + distance + " блоков для захвата цели; еще клик — чтобы телепортировать.");
+            item.setDurabilityValue(item.getDurabilityValue() - COST);
 
             break;
     }
@@ -161,14 +168,14 @@ function dialogClose(e) {
 
 }
 
-function stitchGM3(player, API) {
+function stitchGM3(player, API, bonus) {
 
     player.getTempdata().put("stitched", true);
     player.getTempdata().put("stitchSpell", "GM3");
     API.executeCommand(player.getWorld(), "particle blockdust " + player.getX() + " " + player.getY() + " " + player.getZ() + " 0.3 0.9 0.3 0.3 200 normal @a 214")
     API.executeCommand(player.getWorld(), "gm 3 " + player.name)
 
-    player.getTimers().start(1, GM3_DURATION, false);
+    player.getTimers().start(1, bonus, false);
 }
 
 function timer(event) {
@@ -237,5 +244,21 @@ function getScore(id, player) {
     }
 
     return Number(result);
+
+}
+
+function setScore(player, id, score) {
+
+    var SCOREBOARD = player.world.getScoreboard();
+
+    try {
+        // @ts-ignore
+        SCOREBOARD.setPlayerScore(player.name, id, score, "");
+    } catch (error) {
+        // @ts-ignore
+        SCOREBOARD.addObjective(id, "dummy");
+        // @ts-ignore
+        SCOREBOARD.setPlayerScore(player.name, id, score, "")
+    }
 
 }

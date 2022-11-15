@@ -1,16 +1,16 @@
 var API;
 
-var PLAYER_TP_SANITY_COST = 10;
-var PLAYER_TP_INTEGRITY_COST = 30;
-var TARGET_TP_PLAYER_SANITY_COST;
-var TARGET_TP_PLAYER_INTEGRITY_COST;
-var TARGET_TP_TARGET_SANITY_COST;
-var TARGET_TP_TARGET_INTEGRITY_COST;
+var PLAYER_TP_SANITY_COST = 20;
+var PLAYER_TP_INTEGRITY_COST = 20;
+var TARGET_TP_PLAYER_SANITY_COST = 30;
+var TARGET_TP_PLAYER_INTEGRITY_COST = 0;
+var TARGET_TP_TARGET_SANITY_COST = 15;
+var TARGET_TP_TARGET_INTEGRITY_COST = 10;
 
 
 function attack(e) {
 
-    if (e.player.name == "Baron" && e.player.getTempdata().get("stitched") == true) {
+    if (e.player.getTempdata().get("stitched") == true) {
 
         API = e.API;
 
@@ -130,7 +130,7 @@ function teleportTargetToBlock (e, target, distance) {
 
     var teleported = teleportToBlock(destination, target)
 
-    var targetName = target.getType() == 1 ? target.getDisplay() : target.getEntityName();
+    var targetName = target.getType() == 1 ? target.getDisplayName() : target.getName();
 
     //no free 2-blocks space
     if (teleported == 0) {
@@ -151,6 +151,8 @@ function teleportTargetToBlock (e, target, distance) {
     }
 
     target.getWorld().playSoundAt(target.getPos(), "ancientbeasts:ghost_death", 3, 0)
+    target.getTempdata().put("stitched", false);
+
 
     return 1;
 }
@@ -160,8 +162,8 @@ function getTeleportTarget(e, distance) {
     var target = e.player.rayTraceEntities(distance, false, true)
 
     if (target.length < 1) {
-        sayTo(e.player, "&c[Шов]&r", "*" + e.player.getDisplayName() + "  безуспешно пытается сконцентрироваться на цели. Это должна быть сущность...*");
-        return "";
+        sayTo(e.player, "&c[Шов]&r", "*" + e.player.getDisplayName() + "  безуспешно пытается сконцентрироваться на цели. Это должна быть сущность.*");
+        return null;
     }
 
     target = target[0];
@@ -174,7 +176,7 @@ function getTeleportTarget(e, distance) {
         target.getTempdata().put("stitched", true);
 
     } else {
-        sayTo(e.player, "&c" + "[Шов]" + "&r", "*" + target.getEntityName() + " теперь во Швах — осталось выбрать, куда переместить нить этого Эго.*")
+        sayTo(e.player, "&c" + "[Шов]" + "&r", "*" + target.getName() + " теперь во Швах — осталось выбрать, куда переместить нить этого Эго.*")
 
     }
     return target;
