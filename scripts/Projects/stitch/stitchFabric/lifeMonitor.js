@@ -1,6 +1,6 @@
-var chamberMonitorCoords = [13, 34, 617]
+var chamberMonitorCoords = [-154, 30, 303]
 var name = "&b[Монитор Жизнеобеспечения]&r"
-var controlCoords = [15, 35, 613];
+var controlCoords = [-159, 31, 301];
 
 function interact(e) {
     var chamberMonitorBlock = e.player.getWorld().getBlock(chamberMonitorCoords[0], chamberMonitorCoords[1], chamberMonitorCoords[2]);

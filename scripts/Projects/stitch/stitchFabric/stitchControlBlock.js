@@ -8,11 +8,11 @@ var error = "error"
 var ingredients = ["stewitems:medicine_sotocvet", "biomesoplenty:flower_1", "stewitems:alchemy_rubedo"]
 var costs = ["3", "12", "3"]
 
-var intakeCoords = [8, 33, 616];
-var outputCoords = [19, 36, 616];
-var doorCoords = [13, 35, 615]
-var chamberMonitorCoords = [13, 34, 617]
-var terminalCoords = [20, 34, 612]
+var intakeCoords = [-164, 29, 306];
+var outputCoords = [-163, 32, 303];
+var doorCoords = [-156, 31, 303]
+var chamberMonitorCoords = [-154, 30, 303]
+var terminalCoords = [-160, 30, 306]
 
 var door = "door"
 var intake = "intake"
@@ -23,6 +23,7 @@ var terminal = "terminal"
 var counter;
 
 function tick(e) {
+
     switch (e.block.getStoreddata().get(stateID)) {
         case 3:
             e.block.getWorld().playSoundAt(e.block.getPos(), "immersiveengineering:crusher", 0.5, 0)
@@ -137,6 +138,7 @@ function redstone(e) {
     var tempData = e.block.getTempdata();
 
 
+
     //init components
     if (tempData.getKeys().length <= 2) {
         say("Контролер жужжит реле и щелкает конденсаторами, просчитывая что-то внутри...")
@@ -177,6 +179,7 @@ function redstone(e) {
         data.put(stateID, 0)
         state = data.get(stateID)
     }
+
     // say("State is now " + state)
 
     /**
